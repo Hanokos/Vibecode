@@ -6,7 +6,7 @@ export default function Tooltip({ country }) {
       <h2>{country || "Hover Country"}</h2>
 
       <p>
-        Renewable Energy Data
+         Data
       </p>
 
     </div>

@@ -8,26 +8,17 @@ import StoryCard from "./components/StoryCard";
 
 function App() {
 
-  const [selectedCountry, setSelectedCountry] =
-    useState(null);
-
-  const [searchCountry, setSearchCountry] =
-    useState("");
-
-  const [resetCounter, setResetCounter] =
-    useState(0);
+  // memory
+  const [selectedCountry, setSelectedCountry] = useState(null); // keep track of what coutnry been clicked
+  const [searchCountry, setSearchCountry] =  useState(""); // not working
+  const [resetCounter, setResetCounter] = useState(0); //
 
   return (
     <div className="app">
 
       <header className="header">
-
         <h1>Europe</h1>
-
-        <p>
-         Map
-        </p>
-
+        <p> Map </p>
       </header>
 
       <main className="dashboard">

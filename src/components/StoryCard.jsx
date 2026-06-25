@@ -34,8 +34,8 @@ export default function StoryCard({
         <p>
 
           {country
-            ? "Energy profile coming next. Future energy production, sustainability indicators and renewable infrastructure can be explored here."
-            : "Click a country on the map to begin exploring Europe's energy landscape."}
+            ? " Profile coming next..."
+            : "Click a country on the map to begin exploring Europe's landscape."}
 
         </p>
 

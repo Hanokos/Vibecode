@@ -1,43 +1,42 @@
-import { useEffect, useRef } from "react";
-import * as d3 from "d3";
+import { useEffect, useRef } from "react"; // Get React tools
+import * as d3 from "d3"; // Import the D3 library
 
-export default function EnergyMap({
+export default function EnergyMap({ // React map component
   selectedCountry,
   setSelectedCountry,
   resetCounter
 }) {
 
-  const svgRef = useRef();
+  const svgRef = useRef(); // Connect React SVG to D3
 
   useEffect(() => {
 
     async function drawMap() {
 
-      const europeData =
-        await d3.json("/custom.geojson");
+      // Load the europe geojson file
+      const europeData = await d3.json("/custom.geojson");
 
+      // Select the SVG and clear any old map
       const svg = d3.select(svgRef.current);
-
       svg.selectAll("*").remove();
 
-      const width =
-        svgRef.current.clientWidth;
+      // Get current SVG size for responsive scaling
+      const width = svgRef.current.clientWidth;
+      const height = svgRef.current.clientHeight;
 
-      const height =
-        svgRef.current.clientHeight;
+      // Set the SVG camera/view area
+      svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-      svg.attr(
-        "viewBox",
-        `0 0 ${width} ${height}`
-      );
-
+      // Remove old tooltip before creating a new one
       d3.select(".tooltip").remove();
 
+      // Create a floating tooltip
       const tooltip = d3
         .select("body")
         .append("div")
         .attr("class", "tooltip");
 
+      // Convert latitude/longitude into coordinates for screen
       const projection = d3
         .geoMercator()
         .fitExtent(
@@ -48,30 +47,36 @@ export default function EnergyMap({
           europeData
         );
 
-      const pathGenerator =
-        d3.geoPath(projection);
+      // Convert geojson coordinates into SVG paths
+      const pathGenerator = d3.geoPath(projection);
 
+      // Create one SVG path for every country
       svg
         .selectAll("path")
         .data(europeData.features)
         .join("path")
 
+        // Draw the country shape
         .attr("d", pathGenerator)
 
+        // Selected country becomes yellow
         .attr("fill", d =>
           selectedCountry === d.properties.name
             ? "#ffb703"
             : "#8ecae6"
         )
 
+        // White borders between countries
         .attr("stroke", "white")
-
         .attr("stroke-width", 1.5)
 
+        // Show pointer cursor on hover
         .style("cursor", "pointer")
 
+        // Mouse enters a country
         .on("mouseover", function (event, d) {
 
+          // Highlight country if not already selected
           if (
             selectedCountry !==
             d.properties.name
@@ -83,6 +88,7 @@ export default function EnergyMap({
               .attr("fill", "#ffd166");
           }
 
+          // Show tooltip with country name
           tooltip
             .style("opacity", 1)
             .html(
@@ -91,6 +97,7 @@ export default function EnergyMap({
 
         })
 
+        // Move tooltip with mouse
         .on("mousemove", function (event) {
 
           tooltip
@@ -105,8 +112,10 @@ export default function EnergyMap({
 
         })
 
+        // Mouse leaves the country
         .on("mouseout", function (event, d) {
 
+          // Change colour back if not selected
           if (
             selectedCountry !==
             d.properties.name
@@ -118,31 +127,29 @@ export default function EnergyMap({
               .attr("fill", "#8ecae6");
           }
 
+          // Hide tooltip
           tooltip.style("opacity", 0);
 
         })
 
+        // User clicks a country
         .on("click", function (event, d) {
 
+          // Save selected country in React state
           setSelectedCountry(
             d.properties.name
           );
 
-          const bounds =
-            pathGenerator.bounds(d);
+          // Get country size and position
+          const bounds = pathGenerator.bounds(d);
 
-          const dx =
-            bounds[1][0] - bounds[0][0];
+          const dx = bounds[1][0] - bounds[0][0];
+          const dy = bounds[1][1] - bounds[0][1];
 
-          const dy =
-            bounds[1][1] - bounds[0][1];
+          const x = (bounds[0][0] + bounds[1][0]) / 2;
+          const y = (bounds[0][1] + bounds[1][1]) / 2;
 
-          const x =
-            (bounds[0][0] + bounds[1][0]) / 2;
-
-          const y =
-            (bounds[0][1] + bounds[1][1]) / 2;
-
+          // Calculate zoom level
           const scale =
             Math.max(
               1,
@@ -156,6 +163,7 @@ export default function EnergyMap({
               )
             );
 
+          // Animate zoom into selected country
           svg
             .transition()
             .duration(1000)
@@ -171,13 +179,16 @@ export default function EnergyMap({
 
     }
 
+    // Draw the map when component loads
     drawMap();
 
+    // Redraw map if browser window changes size
     window.addEventListener(
       "resize",
       drawMap
     );
 
+    // Remove resize listener when component is destroyed
     return () => {
 
       window.removeEventListener(
@@ -191,8 +202,9 @@ export default function EnergyMap({
     selectedCountry,
     setSelectedCountry,
     resetCounter
-  ]);
+  ]); // Redraw map when these values change
 
+  // React creates the SVG that D3 draws inside
   return (
     <svg
       ref={svgRef}
